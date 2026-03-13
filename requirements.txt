@@ -1,0 +1,27 @@
+# Core backend
+fastapi
+uvicorn
+
+# HTTP requests
+requests
+
+# Agent framework (Microsoft ecosystem)
+semantic-kernel
+autogen-agentchat
+
+# Azure / Microsoft integration
+azure-identity
+azure-ai-projects
+azure-ai-inference
+azure-storage-blob
+
+# DevOps tools
+docker
+python-dotenv
+
+# Logging and utilities
+pydantic
+rich
+
+# Monitoring
+prometheus-client
