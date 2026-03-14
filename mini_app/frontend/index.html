@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <title>Overwatch Demo Service</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f4f6f8;
+        }
+
+        h1 {
+            color: #222;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 8px 14px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 6px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <h1>Overwatch Demo Service</h1>
+
+
+    <div class="container">
+
+        <h2>Service Health</h2>
+
+        <p>Status: <span id="healthStatus">loading...</span></p>
+        <p>Latency: <span id="latency">-</span> ms</p>
+        <p>Error Rate: <span id="errorRate">-</span></p>
+
+        <button onclick="refreshMetrics()">Refresh Metrics</button>
+
+    </div>
+
+
+    <div class="container">
+
+        <h2>Create User</h2>
+
+        <input id="usernameInput" placeholder="Enter name">
+        <button onclick="createUser()">Create</button>
+
+    </div>
+
+
+    <div class="container">
+
+        <h2>Users</h2>
+
+        <button onclick="loadUsers()">Load Users</button>
+
+        <table id="usersTable">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
