@@ -1,37 +1,54 @@
 from agent_framework.base_agent import BaseAgent
+from foundry.model_client import FoundryClient
 
 
 class DiagnosticianAgent(BaseAgent):
 
     def __init__(self, event_bus):
+
         super().__init__("Diagnostician", event_bus)
+
+        self.ai = FoundryClient(
+            endpoint="YOUR_FOUNDRY_ENDPOINT",
+            model="YOUR_MODEL_NAME"
+        )
 
     def handle_event(self, event):
 
         if event["type"] == "incident_detected":
 
-            print("[DIAGNOSTICIAN] analyzing incident...")
-
             incident = event["data"]
-            metrics = incident.metrics
 
-            classification = "unknown"
-            recommended_action = "investigate"
+            print("[DIAGNOSTICIAN] analyzing incident with AI...")
 
-            if "latency_ms" in metrics:
+            prompt = f"""
+            Analyze this incident:
 
-                latency = metrics["latency_ms"]
-                error_rate = metrics["error_rate"]
+            Metrics:
+            {incident.metrics}
 
-                if latency > 2000 or error_rate > 0.15:
-                    classification = "severe_performance_issue"
-                    recommended_action = "scale_service"
+            Determine the root cause and recommended action.
+            """
 
-                elif error_rate > 0.1:
-                    classification = "performance_issue"
-                    recommended_action = "scale_service"
+            ai_response = self.ai.ask(prompt)
 
-            incident.update_classification(classification, recommended_action)
+            print("[DIAGNOSTICIAN AI RESPONSE]")
+            print(ai_response)
+
+            # simple fallback parsing for now
+            if "scale_service" in ai_response:
+                classification = "performance_issue"
+                action = "scale_service"
+
+            elif "restart_service" in ai_response:
+                classification = "service_failure"
+                action = "restart_service"
+
+            else:
+                classification = "unknown"
+                action = "investigate"
+
+            incident.update_classification(classification, action)
 
             print("[DIAGNOSTICIAN] RCA REPORT →", incident.to_dict())
 

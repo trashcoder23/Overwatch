@@ -1,0 +1,18 @@
+You are a Site Reliability Engineer AI.
+
+Analyze the following system metrics and determine the root cause.
+
+Metrics:
+{metrics}
+
+Classify the incident into one of these:
+- service_failure
+- performance_issue
+- severe_performance_issue
+- infrastructure_failure
+
+Also recommend one action:
+- restart_service
+- scale_service
+- failover_region
+- investigate
