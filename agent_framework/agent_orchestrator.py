@@ -1,7 +1,7 @@
 from agent_framework.base_agent import BaseAgent
 
 
-class OrchestratorAgent(BaseAgent):
+class AgentOrchestrator(BaseAgent):
 
     def __init__(self, registry):
 
@@ -13,7 +13,7 @@ class OrchestratorAgent(BaseAgent):
 
             incident = event["data"]
 
-            print("\n[ORCHESTRATOR] recovery plan generated")
+            print("\n[ORCHESTRATOR] Recovery plan generated")
 
             print("[ORCHESTRATOR] PLAN →", incident.to_dict())
 

@@ -4,7 +4,7 @@ from agents.sentry_agent import SentryAgent
 from agents.diagnostician_agent import DiagnosticianAgent
 from agents.strategist_agent import StrategistAgent
 from agents.logistics_agent import LogisticsAgent
-from agents.orchestrator_agent import OrchestratorAgent
+from agent_framework.agent_orchestrator import AgentOrchestrator
 
 
 def main():
@@ -15,7 +15,8 @@ def main():
     diagnostician = DiagnosticianAgent(registry)
     strategist = StrategistAgent(registry)
     logistics = LogisticsAgent(registry)
-    orchestrator = OrchestratorAgent(registry)
+    orchestrator = AgentOrchestrator(registry)
+
 
     registry.register(sentry)
     registry.register(diagnostician)
