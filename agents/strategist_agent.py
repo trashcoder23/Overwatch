@@ -1,39 +1,66 @@
 from agent_framework.base_agent import BaseAgent
+from foundry.model_client import FoundryClient
+import json
+import re
+
+
+def extract_json(response_text):
+
+    try:
+        match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if match:
+            return json.loads(match.group())
+    except:
+        pass
+
+    return None
 
 
 class StrategistAgent(BaseAgent):
 
     def __init__(self, event_bus):
+
         super().__init__("Strategist", event_bus)
+
+        self.ai = FoundryClient()
+
+        with open("foundry/prompts/strategist_instruction.txt") as f:
+            self.instruction = f.read()
 
     def handle_event(self, event):
 
         if event["type"] == "incident_classified":
 
-            print("[STRATEGIST] evaluating recovery strategy...")
-
             incident = event["data"]
 
-            classification = incident.classification
-            action = incident.recommended_action
+            print("[STRATEGIST] generating recovery strategy with AI...")
 
-            decision = None
+            prompt = f"""
+Incident Data:
 
-            if action == "restart_service":
-                decision = "self_heal_restart"
+Classification: {incident.classification}
 
-            elif action == "scale_service":
-                decision = "self_heal_scale"
+Metrics:
+{incident.metrics}
 
-            elif classification == "service_down":
-                decision = "failover_region"
+Determine the best recovery strategy.
+"""
 
+            ai_response = self.ai.ask(self.instruction, prompt)
+
+            print("[AI STRATEGY RESPONSE]")
+            print(ai_response)
+
+            result = extract_json(ai_response)
+
+            if result:
+                strategy = result.get("strategy", "manual_investigation")
             else:
-                decision = "manual_investigation"
+                strategy = "manual_investigation"
 
-            incident.set_strategy(decision)
+            incident.set_strategy(strategy)
 
-            print("[STRATEGIST] STRATEGY DECISION →", incident.to_dict())
+            print("[STRATEGIST] STRATEGY →", incident.to_dict())
 
             self.send_event(
                 "Logistics",

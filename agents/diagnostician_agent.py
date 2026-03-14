@@ -1,5 +1,21 @@
 from agent_framework.base_agent import BaseAgent
 from foundry.model_client import FoundryClient
+import json
+import re
+
+
+def extract_json(response_text):
+
+    try:
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+
+        if json_match:
+            return json.loads(json_match.group())
+
+    except Exception:
+        pass
+
+    return None
 
 
 class DiagnosticianAgent(BaseAgent):
@@ -8,43 +24,50 @@ class DiagnosticianAgent(BaseAgent):
 
         super().__init__("Diagnostician", event_bus)
 
-        self.ai = FoundryClient(
-            endpoint="YOUR_FOUNDRY_ENDPOINT",
-            model="YOUR_MODEL_NAME"
-        )
+        self.ai = FoundryClient()
+
+        with open("foundry/prompts/diagnostician_instruction.txt") as f:
+            self.instruction = f.read()
 
     def handle_event(self, event):
 
         if event["type"] == "incident_detected":
 
-            incident = event["data"]
-
             print("[DIAGNOSTICIAN] analyzing incident with AI...")
 
+            incident = event["data"]
+
             prompt = f"""
-            Analyze this incident:
+Incident Context:
 
-            Metrics:
-            {incident.metrics}
+Service State:
+{incident.metrics.get("service_state", "unknown")}
 
-            Determine the root cause and recommended action.
-            """
+Metrics:
+{incident.metrics}
 
-            ai_response = self.ai.ask(prompt)
+System Information:
+- Environment: production
+- Service: demo-app
+- Monitoring agent: Sentry
 
-            print("[DIAGNOSTICIAN AI RESPONSE]")
+Analyze the incident and return the JSON response.
+"""
+
+            ai_response = self.ai.ask(self.instruction, prompt)
+
+            print("[AI RCA RAW RESPONSE]")
             print(ai_response)
 
-            # simple fallback parsing for now
-            if "scale_service" in ai_response:
-                classification = "performance_issue"
-                action = "scale_service"
+            result = extract_json(ai_response)
 
-            elif "restart_service" in ai_response:
-                classification = "service_failure"
-                action = "restart_service"
+            if result:
+
+                classification = result.get("classification", "unknown")
+                action = result.get("recommended_action", "investigate")
 
             else:
+
                 classification = "unknown"
                 action = "investigate"
 

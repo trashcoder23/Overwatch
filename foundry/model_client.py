@@ -1,28 +1,34 @@
-from azure.ai.inference import ChatCompletionsClient
-from azure.identity import DefaultAzureCredential
+import os
+from dotenv import load_dotenv
+from openai import AzureOpenAI
+
+load_dotenv()
 
 
 class FoundryClient:
 
-    def __init__(self, endpoint, model):
+    def __init__(self):
 
-        self.client = ChatCompletionsClient(
-            endpoint=endpoint,
-            credential=DefaultAzureCredential(),
+        self.endpoint = os.getenv("FOUNDRY_ENDPOINT")
+        self.api_key = os.getenv("FOUNDRY_API_KEY")
+        self.deployment = os.getenv("FOUNDRY_DEPLOYMENT")
+
+        self.client = AzureOpenAI(
+            api_key=self.api_key,
+            api_version="2024-02-15-preview",
+            azure_endpoint=self.endpoint
         )
 
-        self.model = model
+    def ask(self, system_prompt, user_prompt):
 
-    def ask(self, prompt):
-
-        response = self.client.complete(
+        response = self.client.chat.completions.create(
+            model=self.deployment,
             messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
             ],
-            model=self.model
+            temperature=0.1,
+            max_tokens=500
         )
 
         return response.choices[0].message.content
