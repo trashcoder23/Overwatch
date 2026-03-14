@@ -4,15 +4,15 @@ import json
 import re
 
 
-def extract_json(response_text):
+def extract_json(text):
 
     try:
-        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        match = re.search(r'\{.*\}', text, re.DOTALL)
 
-        if json_match:
-            return json.loads(json_match.group())
+        if match:
+            return json.loads(match.group())
 
-    except Exception:
+    except:
         pass
 
     return None
@@ -20,9 +20,9 @@ def extract_json(response_text):
 
 class DiagnosticianAgent(BaseAgent):
 
-    def __init__(self, event_bus):
+    def __init__(self, registry):
 
-        super().__init__("Diagnostician", event_bus)
+        super().__init__("Diagnostician", registry)
 
         self.ai = FoundryClient()
 
@@ -33,25 +33,13 @@ class DiagnosticianAgent(BaseAgent):
 
         if event["type"] == "incident_detected":
 
-            print("[DIAGNOSTICIAN] analyzing incident with AI...")
-
             incident = event["data"]
 
+            print("[DIAGNOSTICIAN] analyzing incident with AI...")
+
             prompt = f"""
-Incident Context:
-
-Service State:
-{incident.metrics.get("service_state", "unknown")}
-
-Metrics:
+Incident metrics:
 {incident.metrics}
-
-System Information:
-- Environment: production
-- Service: demo-app
-- Monitoring agent: Sentry
-
-Analyze the incident and return the JSON response.
 """
 
             ai_response = self.ai.ask(self.instruction, prompt)
@@ -75,8 +63,4 @@ Analyze the incident and return the JSON response.
 
             print("[DIAGNOSTICIAN] RCA REPORT →", incident.to_dict())
 
-            self.send_event(
-                "Strategist",
-                "incident_classified",
-                incident
-            )
+            self.send("Strategist", "incident_classified", incident)

@@ -1,27 +1,30 @@
-from agent_framework.event_bus import EventBus
+from agent_framework.base_agent import BaseAgent
 
 
-class AgentOrchestrator:
+class OrchestratorAgent(BaseAgent):
 
-    def __init__(self):
-        self.event_bus = EventBus()
-        self.agents = {}
+    def __init__(self, registry):
 
-    def register_agent(self, agent):
-        self.agents[agent.name] = agent
-        self.event_bus.subscribe(agent)
+        super().__init__("Orchestrator", registry)
 
-    def send_initial_event(self, target_agent, event_type, data):
-        event = {
-            "source": "orchestrator",
-            "target": target_agent,
-            "type": event_type,
-            "data": data
-        }
+    def handle_event(self, event):
 
-        self.event_bus.publish(event)
+        if event["type"] == "strategy_ready":
 
-    def list_agents(self):
-        print("Registered agents:")
-        for name in self.agents:
-            print("-", name)
+            incident = event["data"]
+
+            print("\n[ORCHESTRATOR] recovery plan generated")
+
+            print("[ORCHESTRATOR] PLAN →", incident.to_dict())
+
+            decision = input("\nApprove execution? (yes/no): ")
+
+            if decision.lower() == "yes":
+
+                print("[ORCHESTRATOR] executing recovery plan")
+
+                self.send("Logistics", "execute_strategy", incident)
+
+            else:
+
+                print("[ORCHESTRATOR] execution aborted")

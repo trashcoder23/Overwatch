@@ -4,12 +4,14 @@ import json
 import re
 
 
-def extract_json(response_text):
+def extract_json(text):
 
     try:
-        match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+
         if match:
             return json.loads(match.group())
+
     except:
         pass
 
@@ -18,9 +20,9 @@ def extract_json(response_text):
 
 class StrategistAgent(BaseAgent):
 
-    def __init__(self, event_bus):
+    def __init__(self, registry):
 
-        super().__init__("Strategist", event_bus)
+        super().__init__("Strategist", registry)
 
         self.ai = FoundryClient()
 
@@ -36,14 +38,10 @@ class StrategistAgent(BaseAgent):
             print("[STRATEGIST] generating recovery strategy with AI...")
 
             prompt = f"""
-Incident Data:
-
-Classification: {incident.classification}
+Incident classification: {incident.classification}
 
 Metrics:
 {incident.metrics}
-
-Determine the best recovery strategy.
 """
 
             ai_response = self.ai.ask(self.instruction, prompt)
@@ -54,16 +52,12 @@ Determine the best recovery strategy.
             result = extract_json(ai_response)
 
             if result:
-                strategy = result.get("strategy", "manual_investigation")
+                strategy = result.get("strategy", "investigate")
             else:
-                strategy = "manual_investigation"
+                strategy = "investigate"
 
             incident.set_strategy(strategy)
 
             print("[STRATEGIST] STRATEGY →", incident.to_dict())
 
-            self.send_event(
-                "Logistics",
-                "execute_strategy",
-                incident
-            )
+            self.send("Orchestrator", "strategy_ready", incident)

@@ -1,31 +1,11 @@
 from agent_framework.base_agent import BaseAgent
-from foundry.model_client import FoundryClient
-import json
-import re
-
-
-def extract_json(response_text):
-
-    try:
-        match = re.search(r'\{.*\}', response_text, re.DOTALL)
-        if match:
-            return json.loads(match.group())
-    except:
-        pass
-
-    return None
 
 
 class LogisticsAgent(BaseAgent):
 
-    def __init__(self, event_bus):
+    def __init__(self, registry):
 
-        super().__init__("Logistics", event_bus)
-
-        self.ai = FoundryClient()
-
-        with open("foundry/prompts/logistics_instruction.txt") as f:
-            self.instruction = f.read()
+        super().__init__("Logistics", registry)
 
     def handle_event(self, event):
 
@@ -33,31 +13,15 @@ class LogisticsAgent(BaseAgent):
 
             incident = event["data"]
 
-            print("[LOGISTICS] planning recovery execution with AI...")
-
-            prompt = f"""
-Recovery Strategy: {incident.strategy}
-
-Metrics:
-{incident.metrics}
-
-Describe the infrastructure action needed.
-"""
-
-            ai_response = self.ai.ask(self.instruction, prompt)
-
-            print("[AI EXECUTION PLAN]")
-            print(ai_response)
-
             print("[LOGISTICS] executing recovery action...")
 
-            if incident.strategy == "scale_service":
-
-                print("[LOGISTICS] scaling service resources...")
-
-            elif incident.strategy == "restart_service":
+            if incident.strategy == "restart_service":
 
                 print("[LOGISTICS] restarting service...")
+
+            elif incident.strategy == "scale_service":
+
+                print("[LOGISTICS] scaling resources...")
 
             elif incident.strategy == "failover_region":
 

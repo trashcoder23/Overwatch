@@ -1,28 +1,27 @@
-from abc import ABC, abstractmethod
+class BaseAgent:
 
+    def __init__(self, name, registry):
 
-class BaseAgent(ABC):
-    def __init__(self, name, event_bus):
         self.name = name
-        self.event_bus = event_bus
+        self.registry = registry
 
-    def send_event(self, target_agent, event_type, data):
-        """Send event to another agent"""
-        event = {
-            "source": self.name,
-            "target": target_agent,
-            "type": event_type,
-            "data": data
-        }
+    def send(self, target, event_type, data):
 
-        self.event_bus.publish(event)
+        agent = self.registry.get(target)
 
-    def receive_event(self, event):
-        """Receive events from event bus"""
-        if event["target"] == self.name:
-            self.handle_event(event)
+        if agent:
 
-    @abstractmethod
+            print(f"[A2A] {self.name} → {target} ({event_type})")
+
+            agent.receive({
+                "source": self.name,
+                "type": event_type,
+                "data": data
+            })
+
+    def receive(self, event):
+
+        self.handle_event(event)
+
     def handle_event(self, event):
-        """Each agent defines how it handles events"""
         pass
