@@ -3,7 +3,7 @@ import time
 from agent_framework.base_agent import BaseAgent
 from agent_framework.incident import Incident
 import os
-APP_URL = os.getenv("APP_URL", "http://demo-service:8000")
+APP_URL = os.getenv("APP_URL", "https://demo-service-east.ashyground-9b112b43.eastus.azurecontainerapps.io")
 
 
 class SentryAgent(BaseAgent):

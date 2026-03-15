@@ -5,23 +5,18 @@ import re
 
 
 def extract_json(text):
-
     try:
         match = re.search(r'\{.*\}', text, re.DOTALL)
-
         if match:
             return json.loads(match.group())
-
     except:
         pass
-
     return None
 
 
 class DiagnosticianAgent(BaseAgent):
 
     def __init__(self, registry):
-
         super().__init__("Diagnostician", registry)
 
         self.ai = FoundryClient()
@@ -50,13 +45,23 @@ Incident metrics:
             result = extract_json(ai_response)
 
             if result:
-
                 classification = result.get("classification", "unknown")
                 action = result.get("recommended_action", "investigate")
-                confidence = result.get("confidence", 0.5)
+
+                confidence_map = {
+                    "low": 0.3,
+                    "medium": 0.6,
+                    "high": 0.9
+                }
+
+                conf = result.get("confidence", "medium")
+
+                if isinstance(conf, str):
+                    confidence = confidence_map.get(conf.lower(), 0.6)
+                else:
+                    confidence = float(conf)
 
             else:
-
                 classification = "unknown"
                 action = "investigate"
                 confidence = 0.5

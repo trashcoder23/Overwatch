@@ -16,6 +16,6 @@ def restart_service(service_name):
         "overwatch-rg"
     ]
 
-    subprocess.run(cmd)
+    subprocess.run(cmd, shell=True)
 
     print("[MCP] restart triggered")
