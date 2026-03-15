@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import random
 import os
+import time
 
 from database import engine
 from models import Base
@@ -14,39 +15,51 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# ------------------------------
 # Database Initialization
+# ------------------------------
 
 @app.on_event("startup")
 def startup():
-
-    # create tables if they don't exist
     Base.metadata.create_all(bind=engine)
 
 
+# ------------------------------
 # Service State
+# ------------------------------
 
 service_state = {
-    "status": "healthy"
+    "status": "healthy",
+    "last_changed": time.time()
 }
 
-# Root Endpoint (API Info)
+
+def set_state(state):
+    service_state["status"] = state
+    service_state["last_changed"] = time.time()
+
+
+# ------------------------------
+# API Info
+# ------------------------------
 
 @app.get("/api-info")
 def api_info():
-
     return {
         "service": "overwatch-demo",
-        "message": "Service running"
+        "message": "Service running",
+        "version": "1.0.0"
     }
 
 
+# ------------------------------
 # Health Check
+# ------------------------------
 
 @app.get("/health")
 def health():
 
     if service_state["status"] == "down":
-
         return JSONResponse(
             status_code=500,
             content={"status": "unhealthy"}
@@ -57,18 +70,34 @@ def health():
     }
 
 
-# Metrics Endpoint
+# ------------------------------
+# System Status (for agents)
+# ------------------------------
 
+@app.get("/status")
+def status():
+
+    return {
+        "service_state": service_state["status"],
+        "uptime_seconds": int(time.time() - service_state["last_changed"])
+    }
+
+
+# ------------------------------
+# Metrics Endpoint
+# ------------------------------
 
 @app.get("/metrics")
 def metrics():
 
-    if service_state["status"] == "healthy":
+    state = service_state["status"]
+
+    if state == "healthy":
 
         latency = random.randint(100, 400)
         error_rate = random.uniform(0.0, 0.03)
 
-    elif service_state["status"] == "degraded":
+    elif state == "degraded":
 
         latency = random.randint(1500, 3000)
         error_rate = random.uniform(0.1, 0.25)
@@ -81,17 +110,18 @@ def metrics():
     return {
         "latency_ms": latency,
         "error_rate": error_rate,
-        "service_state": service_state["status"]
+        "service_state": state
     }
 
-# Service State Controls
-# (Used for testing)
 
+# ------------------------------
+# ADMIN CONTROLS (Chaos testing)
+# ------------------------------
 
 @app.post("/admin/degrade")
 def simulate_degradation():
 
-    service_state["status"] = "degraded"
+    set_state("degraded")
 
     return {
         "message": "Service performance degraded"
@@ -101,7 +131,7 @@ def simulate_degradation():
 @app.post("/admin/outage")
 def simulate_outage():
 
-    service_state["status"] = "down"
+    set_state("down")
 
     return {
         "message": "Service outage triggered"
@@ -111,18 +141,23 @@ def simulate_outage():
 @app.post("/admin/recover")
 def recover():
 
-    service_state["status"] = "healthy"
+    set_state("healthy")
 
     return {
         "message": "Service recovered"
     }
 
-# Include API Routes
+
+# ------------------------------
+# API ROUTES
+# ------------------------------
 
 app.include_router(router, prefix="/api")
 
-# Serve Frontend
 
+# ------------------------------
+# Frontend Hosting
+# ------------------------------
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "../frontend")
 

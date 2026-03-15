@@ -35,8 +35,6 @@ class SentryAgent(BaseAgent):
 
                     self.send("Diagnostician", "incident_detected", incident)
 
-                    break
-
                 metrics = requests.get(f"{APP_URL}/metrics").json()
 
                 latency = metrics["latency_ms"]
@@ -54,8 +52,6 @@ class SentryAgent(BaseAgent):
 
                     self.send("Diagnostician", "incident_detected", incident)
 
-                    break
-
             except Exception:
 
                 print("[SENTRY] Service unreachable")
@@ -66,7 +62,5 @@ class SentryAgent(BaseAgent):
                 )
 
                 self.send("Diagnostician", "incident_detected", incident)
-
-                break
 
             time.sleep(5)

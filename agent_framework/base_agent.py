@@ -1,7 +1,9 @@
+import datetime
+
+
 class BaseAgent:
 
     def __init__(self, name, registry):
-
         self.name = name
         self.registry = registry
 
@@ -9,18 +11,24 @@ class BaseAgent:
 
         agent = self.registry.get(target)
 
-        if agent:
+        if not agent:
+            print(f"[ERROR] Agent {target} not found")
+            return
 
-            print(f"[A2A] {self.name} → {target} ({event_type})")
+        event = {
+            "source": self.name,
+            "target": target,
+            "type": event_type,
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "incident_id": getattr(data, "id", None),
+            "data": data
+        }
 
-            agent.receive({
-                "source": self.name,
-                "type": event_type,
-                "data": data
-            })
+        print(f"[A2A] {self.name} → {target} ({event_type})")
+
+        agent.receive(event)
 
     def receive(self, event):
-
         self.handle_event(event)
 
     def handle_event(self, event):

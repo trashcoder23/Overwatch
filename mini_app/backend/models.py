@@ -17,3 +17,23 @@ class User(Base):
         server_default=func.now(),
         nullable=False
     )
+
+
+class IncidentLog(Base):
+
+    __tablename__ = "incident_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    incident_id = Column(String(255), nullable=False)
+
+    classification = Column(String(255))
+
+    strategy = Column(String(255))
+
+    status = Column(String(50))
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now()
+    )

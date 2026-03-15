@@ -53,13 +53,15 @@ Incident metrics:
 
                 classification = result.get("classification", "unknown")
                 action = result.get("recommended_action", "investigate")
+                confidence = result.get("confidence", 0.5)
 
             else:
 
                 classification = "unknown"
                 action = "investigate"
+                confidence = 0.5
 
-            incident.update_classification(classification, action)
+            incident.update_classification(classification, action, confidence)
 
             print("[DIAGNOSTICIAN] RCA REPORT →", incident.to_dict())
 

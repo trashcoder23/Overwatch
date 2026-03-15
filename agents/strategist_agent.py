@@ -52,11 +52,17 @@ Metrics:
             result = extract_json(ai_response)
 
             if result:
+
                 strategy = result.get("strategy", "investigate")
+                confidence = result.get("confidence", incident.confidence)
+
             else:
+
                 strategy = "investigate"
+                confidence = incident.confidence
 
             incident.set_strategy(strategy)
+            incident.confidence = confidence
 
             print("[STRATEGIST] STRATEGY →", incident.to_dict())
 

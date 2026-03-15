@@ -1,4 +1,5 @@
 import uuid
+import datetime
 
 
 class Incident:
@@ -14,20 +15,41 @@ class Incident:
         self.recommended_action = None
         self.strategy = None
 
+        self.confidence = None
+        self.severity = None
+
         self.status = "open"
 
-    def update_classification(self, classification, action):
+        self.created_at = datetime.datetime.utcnow().isoformat()
+
+        self.history = []
+
+        self.add_history("incident_created")
+
+    def add_history(self, event):
+
+        self.history.append({
+            "event": event,
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        })
+
+    def update_classification(self, classification, action, confidence=None):
 
         self.classification = classification
         self.recommended_action = action
+        self.confidence = confidence
+
+        self.add_history("classified")
 
     def set_strategy(self, strategy):
 
         self.strategy = strategy
+        self.add_history("strategy_generated")
 
     def resolve(self):
 
         self.status = "resolved"
+        self.add_history("resolved")
 
     def to_dict(self):
 
@@ -38,5 +60,7 @@ class Incident:
             "classification": self.classification,
             "recommended_action": self.recommended_action,
             "strategy": self.strategy,
-            "status": self.status
+            "confidence": self.confidence,
+            "status": self.status,
+            "history": self.history
         }

@@ -18,14 +18,17 @@ class LogisticsAgent(BaseAgent):
             if incident.strategy == "restart_service":
 
                 print("[LOGISTICS] restarting service...")
+                # later integrate MCP restart tool
 
             elif incident.strategy == "scale_service":
 
                 print("[LOGISTICS] scaling resources...")
+                # future: call mcp.tools.deploy_container
 
             elif incident.strategy == "failover_region":
 
                 print("[LOGISTICS] initiating regional failover...")
+                # future: call mcp.tools.switch_traffic
 
             else:
 
