@@ -1,27 +1,30 @@
 # Core backend
-fastapi
-uvicorn
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
 
-# HTTP requests
-requests
+# HTTP
+requests==2.32.3
 
-# Agent framework (Microsoft ecosystem)
-semantic-kernel
-autogen-agentchat
+# Agent framework
+semantic-kernel==1.8.3
+autogen-agentchat==0.2.37
 
-# Azure / Microsoft integration
-azure-identity
-azure-ai-projects
-azure-ai-inference
-azure-storage-blob
+# Azure
+azure-identity==1.17.1
+azure-ai-projects==1.0.0b4
+azure-ai-inference==1.0.0b3
+azure-storage-blob==12.20.0
 
-# DevOps tools
-docker
-python-dotenv
+# DevOps
+python-dotenv==1.0.1
+docker==7.1.0
 
-# Logging and utilities
-pydantic
-rich
+# Data validation / logging
+pydantic==2.7.4
+rich==13.7.1
 
 # Monitoring
-prometheus-client
+prometheus-client==0.20.0
+
+# Required by semantic-kernel
+aiohttp==3.9.5

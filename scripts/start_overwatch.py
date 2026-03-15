@@ -4,61 +4,71 @@ from agents.sentry_agent import SentryAgent
 from agents.diagnostician_agent import DiagnosticianAgent
 from agents.strategist_agent import StrategistAgent
 from agents.logistics_agent import LogisticsAgent
+from agents.traffic_controller_agent import TrafficControllerAgent
+
 from agent_framework.agent_orchestrator import AgentOrchestrator
-
-import threading
-import time
-
-
-def start_monitoring(sentry):
-    sentry.monitor()
 
 
 def main():
 
+    print("\n========== OVERWATCH AGENT SYSTEM ==========\n")
+
     registry = AgentRegistry()
 
-    # Initialize Agents
+    # Create agents
+
     sentry = SentryAgent(registry)
     diagnostician = DiagnosticianAgent(registry)
     strategist = StrategistAgent(registry)
     logistics = LogisticsAgent(registry)
     orchestrator = AgentOrchestrator(registry)
+    traffic = TrafficControllerAgent(registry)
 
-    # Register Agents
+    # Register agents
+
     registry.register(sentry)
     registry.register(diagnostician)
     registry.register(strategist)
     registry.register(logistics)
     registry.register(orchestrator)
+    registry.register(traffic)
 
-    print("\nRegistered agents:")
+    print("Registered agents:\n")
 
     for agent in registry.all():
-        print("-", agent.name)
+        print(f" - {agent.name}")
 
-    print("\nStarting Overwatch system...\n")
+    print("\n===========================================\n")
 
-    # Start Sentry Monitoring in Background
-    monitoring_thread = threading.Thread(
-        target=start_monitoring,
-        args=(sentry,),
-        daemon=True
-    )
+    # Manual MCP test (optional)
 
-    monitoring_thread.start()
+    test = input("Run MCP infrastructure test? (yes/no): ")
 
-    print("[SYSTEM] Sentry monitoring started")
+    if test.lower() == "yes":
 
-    # Keep main process alive
-    try:
+        print("\n[MCP TEST] Simulating failover strategy\n")
 
-        while True:
-            time.sleep(5)
+        from agent_framework.incident import Incident
 
-    except KeyboardInterrupt:
+        incident = Incident(
+            source="manual_test",
+            metrics={"reason": "demo"}
+        )
 
-        print("\n[SYSTEM] Shutting down Overwatch...")
+        incident.set_strategy("failover_region")
+
+        logistics.handle_event({
+            "type": "execute_strategy",
+            "data": incident
+        })
+
+        print("\n[MCP TEST COMPLETE]\n")
+
+    # Start monitoring loop
+
+    print("Starting Sentry monitoring...\n")
+
+    sentry.monitor()
 
 
 if __name__ == "__main__":

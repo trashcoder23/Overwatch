@@ -161,9 +161,9 @@ app.include_router(router, prefix="/api")
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "../frontend")
 
-app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+if os.path.isdir(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-
-@app.get("/")
-def serve_frontend():
-    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+    @app.get("/")
+    def serve_frontend():
+        return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))

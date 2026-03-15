@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+
+  demo-service:
+    build:
+      context: ./mini_app
+      dockerfile: backend/Dockerfile
+    container_name: demo-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+
+  overwatch-agents:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: overwatch-agents
+    depends_on:
+      - demo-service
+    env_file:
+      - .env
+    environment:
+      APP_URL: http://demo-service:8000

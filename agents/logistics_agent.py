@@ -1,5 +1,10 @@
 from agent_framework.base_agent import BaseAgent
 
+# MCP tools
+from mcp.tools.restart_service import restart_service
+from mcp.tools.deploy_container import deploy_container
+from mcp.tools.switch_traffic import switch_to_region
+
 
 class LogisticsAgent(BaseAgent):
 
@@ -13,27 +18,50 @@ class LogisticsAgent(BaseAgent):
 
             incident = event["data"]
 
-            print("[LOGISTICS] executing recovery action...")
+            print("\n[LOGISTICS] executing recovery strategy")
 
-            if incident.strategy == "restart_service":
+            strategy = incident.strategy
 
-                print("[LOGISTICS] restarting service...")
-                # later integrate MCP restart tool
+            print(f"[LOGISTICS] strategy → {strategy}")
 
-            elif incident.strategy == "scale_service":
+            try:
 
-                print("[LOGISTICS] scaling resources...")
-                # future: call mcp.tools.deploy_container
+                if strategy == "restart_service":
 
-            elif incident.strategy == "failover_region":
+                    print("[LOGISTICS] restarting container app")
 
-                print("[LOGISTICS] initiating regional failover...")
-                # future: call mcp.tools.switch_traffic
+                    restart_service("demo-service-east")
 
-            else:
+                elif strategy == "scale_service":
 
-                print("[LOGISTICS] manual investigation required")
+                    print("[LOGISTICS] scaling service")
+
+                    deploy_container("demo-service-east")
+
+                elif strategy == "failover_region":
+
+                    print("[LOGISTICS] triggering regional failover")
+
+                    switch_to_region("west")
+
+                elif strategy == "rollback_deployment":
+
+                    print("[LOGISTICS] rollback not implemented yet")
+
+                else:
+
+                    print("[LOGISTICS] unknown strategy → manual investigation required")
+
+            except Exception as e:
+
+                print("[LOGISTICS] execution failed:", str(e))
+
+                return
 
             incident.resolve()
 
-            print("[LOGISTICS] INCIDENT RESOLVED →", incident.to_dict())
+            print("[LOGISTICS] INCIDENT RESOLVED")
+
+            print("[LOGISTICS] FINAL INCIDENT STATE →")
+
+            print(incident.to_dict())

@@ -2,8 +2,8 @@ import requests
 import time
 from agent_framework.base_agent import BaseAgent
 from agent_framework.incident import Incident
-
-APP_URL = "http://127.0.0.1:8000"
+import os
+APP_URL = os.getenv("APP_URL", "http://demo-service:8000")
 
 
 class SentryAgent(BaseAgent):
