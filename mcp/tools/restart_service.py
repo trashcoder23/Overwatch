@@ -18,4 +18,4 @@ def restart_service(service_name):
 
     subprocess.run(cmd)
 
-    print("[MCP] service restart triggered")
+    print("[MCP] restart triggered")

@@ -1,21 +1,24 @@
 import subprocess
 
 
-def restart_service(service_name):
+def deploy_container(service_name):
 
-    print(f"[MCP] restarting container app {service_name}")
+    print(f"[MCP] scaling container service {service_name}")
 
     cmd = [
         "az",
         "containerapp",
-        "revision",
-        "restart",
+        "update",
         "--name",
         service_name,
         "--resource-group",
-        "overwatch-rg"
+        "overwatch-rg",
+        "--min-replicas",
+        "2",
+        "--max-replicas",
+        "5"
     ]
 
     subprocess.run(cmd)
 
-    print("[MCP] service restart triggered")
+    print("[MCP] scaling operation completed")
